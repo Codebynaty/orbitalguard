@@ -221,20 +221,29 @@ export default function App() {
   const [toast,     setToast]     = useState(null);
 
   useEffect(()=>{
-    fetch(`${API}/perfil/${userId}`).then(r=>r.json())
-      .then(setPerfil).catch(()=>{});
+    fetch(`${API}/perfil/${userId}`)
+      .then(r=>r.ok?r.json():Promise.reject(r.status))
+      .then(d=>{ if(d && typeof d.pontos==='number') setPerfil(d); })
+      .catch(()=>{});   // sem API: mantém perfil zerado, não quebra
   },[userId]);
 
   useEffect(()=>{
-    fetch(`${API}/barragens`).then(r=>r.json())
-      .then(d=>{setBarragens(d.barragens.map((b,i)=>({...MOCK_BARRAGENS[i],...b})));setApiOk(true);})
-      .catch(()=>setApiOk(false));
+    fetch(`${API}/barragens`)
+      .then(r=>r.ok?r.json():Promise.reject(r.status))
+      .then(d=>{
+        if(d && Array.isArray(d.barragens) && d.barragens.length){
+          setBarragens(d.barragens.map((b,i)=>({...(MOCK_BARRAGENS[i]||{}),...b})));
+          setApiOk(true);
+        } else { setApiOk(false); }
+      })
+      .catch(()=>setApiOk(false));   // mantém MOCK_BARRAGENS, não quebra a tela
   },[]);
 
   useEffect(()=>{
     if(!selected)return;
-    fetch(`${API}/historico/${selected.id}`).then(r=>r.json())
-      .then(d=>setHistorico(d.historico))
+    fetch(`${API}/historico/${selected.id}`)
+      .then(r=>r.ok?r.json():Promise.reject(r.status))
+      .then(d=>setHistorico(Array.isArray(d?.historico)?d.historico:gerarHistorico(selected)))
       .catch(()=>setHistorico(gerarHistorico(selected)));
   },[selected]);
 

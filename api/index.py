@@ -27,20 +27,23 @@ except ImportError:
     joblib = None
     _ML_DISPONIVEL = False
 
-# root_path=/api: a Vercel encaminha as rotas sob /api para esta function
+# Todas as rotas são declaradas neste app com prefixo /api,
+# porque na Vercel as requisições chegam como /api/barragens, /api/stats, etc.
 app = FastAPI(
-    root_path="/api",
     title="OrbitalGuard API",
     description="Monitoramento de barragens com dados SAR + IA + SIGBM/ANM",
-    version="2.0.0"
+    version="2.0.0",
 )
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Roteador com prefixo /api: todas as rotas abaixo respondem em /api/...
+from fastapi import APIRouter
+router = APIRouter(prefix="/api")
 
 # ─── MODELOS ──────────────────────────────────────────────────────────────────
 OUTPUT_DIR = Path(__file__).resolve().parent / "output"
@@ -175,7 +178,7 @@ def _perfil(uid: str):
     })
 
 # ─── ENDPOINTS ────────────────────────────────────────────────────────────────
-@app.get("/")
+@router.get("/")
 def root():
     return {
         "projeto": "OrbitalGuard",
@@ -191,7 +194,7 @@ def root():
     }
 
 
-@app.get("/barragens")
+@router.get("/barragens")
 async def listar_barragens(
     estado: Optional[str] = None,
     risco:  Optional[str] = None,
@@ -223,7 +226,7 @@ async def listar_barragens(
     }
 
 
-@app.get("/barragens/{barragem_id}")
+@router.get("/barragens/{barragem_id}")
 def detalhe_barragem(barragem_id: str):
     b = next((b for b in BARRAGENS_REAIS if b["id"] == barragem_id), None)
     if not b:
@@ -231,7 +234,7 @@ def detalhe_barragem(barragem_id: str):
     return {**b, "votos": votos_db.get(barragem_id, {"confirmar": 0, "contestar": 0})}
 
 
-@app.post("/predict")
+@router.post("/predict")
 def predict_risco(req: PredictRequest):
     """Classifica risco com modelo de IA ou regras de fallback."""
     if modelo_rf:
@@ -269,7 +272,7 @@ def predict_risco(req: PredictRequest):
     }
 
 
-@app.post("/votar")
+@router.post("/votar")
 def registrar_voto(req: VotoRequest):
     """Registra voto de validação comunitária (confirmar risco / contestar falso positivo)."""
     if req.tipo not in ["confirmar", "contestar"]:
@@ -300,7 +303,7 @@ def registrar_voto(req: VotoRequest):
     }
 
 
-@app.get("/votos/{barragem_id}")
+@router.get("/votos/{barragem_id}")
 def votos_barragem(barragem_id: str):
     v = votos_db.get(barragem_id, {"confirmar": 0, "contestar": 0})
     total = v.get("confirmar", 0) + v.get("contestar", 0)
@@ -313,7 +316,7 @@ def votos_barragem(barragem_id: str):
     }
 
 
-@app.get("/alertas")
+@router.get("/alertas")
 def listar_alertas():
     alertas = [
         {**b, "votos": votos_db.get(b["id"], {"confirmar": 0, "contestar": 0})}
@@ -327,7 +330,7 @@ def listar_alertas():
     }
 
 
-@app.get("/historico/{barragem_id}")
+@router.get("/historico/{barragem_id}")
 def historico_barragem(barragem_id: str, dias: int = 90):
     b = next((b for b in BARRAGENS_REAIS if b["id"] == barragem_id), None)
     if not b:
@@ -341,7 +344,7 @@ def historico_barragem(barragem_id: str, dias: int = 90):
     }
 
 
-@app.get("/stats")
+@router.get("/stats")
 def estatisticas():
     criticos = sum(1 for b in BARRAGENS_REAIS if b["risco"] == "Crítico")
     atencao  = sum(1 for b in BARRAGENS_REAIS if b["risco"] == "Atenção")
@@ -363,7 +366,7 @@ def estatisticas():
     }
 
 
-@app.get("/ranking")
+@router.get("/ranking")
 def ranking():
     """Top barragens ordenadas por nível de risco (mais crítico primeiro)."""
     ordem = {"Crítico": 0, "Atenção": 1, "Sem Risco": 2}
@@ -379,7 +382,7 @@ def ranking():
     }
 
 
-@app.get("/estados")
+@router.get("/estados")
 def estatisticas_por_estado():
     """Estatísticas agregadas por estado."""
     estados = {}
@@ -396,7 +399,7 @@ def estatisticas_por_estado():
     return {"estados": sorted(estados.values(), key=lambda x: -x["critico"])}
 
 
-@app.get("/empresas")
+@router.get("/empresas")
 def ranking_empresas():
     """Ranking de empresas por número de alertas (crítico + atenção)."""
     empresas = {}
@@ -412,7 +415,7 @@ def ranking_empresas():
     return {"empresas": ranked}
 
 
-@app.get("/mapa-dados")
+@router.get("/mapa-dados")
 def mapa_dados():
     """Dados leves para renderização do mapa (lat/lon/risco)."""
     return {
@@ -425,7 +428,7 @@ def mapa_dados():
     }
 
 
-@app.get("/busca")
+@router.get("/busca")
 def busca_avancada(q: str = "", estado: Optional[str] = None, risco: Optional[str] = None):
     """Busca livre por texto combinada com filtros."""
     res = BARRAGENS_REAIS.copy()
@@ -440,7 +443,7 @@ def busca_avancada(q: str = "", estado: Optional[str] = None, risco: Optional[st
     return {"total": len(res), "query": q, "resultados": res}
 
 
-@app.post("/atualizar")
+@router.post("/atualizar")
 async def atualizar_dados():
     """Força tentativa de re-download dos dados da ANM/SIGBM."""
     ok = await tentar_buscar_anm()
@@ -453,7 +456,7 @@ async def atualizar_dados():
 
 
 # ─── GAMIFICAÇÃO — ENDPOINTS ─────────────────────────────────────────────────────
-@app.post("/reportar")
+@router.post("/reportar")
 def reportar(req: ReportRequest):
     """Cria um ticket de verificação e pontua o usuário (gamificação)."""
     barragem = next((b for b in BARRAGENS_REAIS if b["id"] == req.barragem_id), None)
@@ -523,7 +526,7 @@ def reportar(req: ReportRequest):
     }
 
 
-@app.get("/perfil/{usuario_id}")
+@router.get("/perfil/{usuario_id}")
 def perfil_usuario(usuario_id: str):
     """Retorna o perfil de gamificação do usuário (pontos, streak, badge)."""
     perfil = _perfil(usuario_id)
@@ -537,7 +540,7 @@ def perfil_usuario(usuario_id: str):
     }
 
 
-@app.get("/guardioes")
+@router.get("/guardioes")
 def ranking_guardioes(limit: int = 20):
     """Ranking dos usuários por pontos (leaderboard de gamificação)."""
     ordenados = sorted(usuarios_db.values(), key=lambda u: -u["pontos"])[:limit]
@@ -553,7 +556,7 @@ def ranking_guardioes(limit: int = 20):
     }
 
 
-@app.get("/tickets/{barragem_id}")
+@router.get("/tickets/{barragem_id}")
 def tickets_barragem(barragem_id: str):
     """Tickets de verificação de uma barragem + consenso da comunidade."""
     tickets = [r for r in reports_db if r["barragem_id"] == barragem_id]
@@ -570,3 +573,5 @@ def tickets_barragem(barragem_id: str):
         },
         "tickets": sorted(tickets, key=lambda t: t["timestamp"], reverse=True)[:50],
     }
+
+app.include_router(router)
