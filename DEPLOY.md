@@ -1,99 +1,103 @@
-# 🚀 Guia de Deploy — OrbitalGuard
+# 🚀 Guia de Deploy — OrbitalGuard (tudo na Vercel)
 
-Passo a passo para colocar o OrbitalGuard **público e online** usando planos **gratuitos**.
+Frontend **e** backend rodam num **único projeto Vercel**.
+- Frontend (React) → site estático
+- Backend (FastAPI) → serverless Python em `/api`
 
 ---
 
-## 0. Antes de tudo — Segurança 🔒
+## 0. Segurança 🔒
 
-⚠️ **As credenciais do Copernicus estavam expostas no código original.**
+⚠️ As credenciais do Copernicus estiveram expostas no código original.
 **Troque a senha** em https://dataspace.copernicus.eu antes de publicar.
-
-Nunca comite o arquivo `.env`. Ele já está no `.gitignore`. Use `.env.example` como modelo.
+Nunca comite `.env` (já está no `.gitignore`).
 
 ---
 
-## 1. Subir o repositório no GitHub
+## 1. Subir no GitHub
 
 ```bash
 cd orbitalguard-repo
-git init
-git add .
-git commit -m "OrbitalGuard — MVP completo (backend + dashboard + ML + SAR)"
-git branch -M main
 git remote add origin https://github.com/SEU_USUARIO/orbitalguard.git
 git push -u origin main
 ```
 
-> Confirme que o repo está **público** em Settings → Visibility, se quiser que a banca acesse.
+> Deixe o repo **público** em Settings → Visibility (pra banca acessar).
 
 ---
 
-## 2. Deploy do Backend (FastAPI) — Render.com (free)
+## 2. Deploy na Vercel (5 min) — só isso
 
-1. Crie conta em https://render.com (login com GitHub)
-2. **New** → **Web Service** → conecte o repo `orbitalguard`
-3. Configure:
-   - **Root Directory:** `backend`
-   - **Build Command:** `pip install -r requirements.txt`
-   - **Start Command:** `uvicorn backend:app --host 0.0.0.0 --port $PORT`
-   - **Plan:** Free
-4. **Create Web Service** → aguarde o build (~2-3 min)
-5. Anote a URL gerada, ex.: `https://orbitalguard-api.onrender.com`
+1. Acesse https://vercel.com → login com GitHub
+2. **Add New → Project** → importe o repo `orbitalguard`
+3. **NÃO mude o Root Directory** — deixe a raiz do repo (`./`).
+   O `vercel.json` já cuida de tudo:
+   - builda o dashboard (`dashboard/build`)
+   - expõe a API Python em `/api`
+4. Clique **Deploy**
+5. Aguarde (~2-3 min) → pronto! Link público no ar 🎉
 
-> Teste: abra `https://sua-api.onrender.com/docs` — deve mostrar o Swagger com os 14 endpoints.
-> ⚠️ No plano free, o serviço "dorme" após 15 min sem uso e leva ~30s pra acordar na primeira chamada. Normal.
+Exemplo de URLs depois do deploy:
+- Site: `https://orbitalguard.vercel.app`
+- API:  `https://orbitalguard.vercel.app/api/stats`
+- Docs: `https://orbitalguard.vercel.app/api/docs`
 
----
-
-## 3. Deploy do Frontend (React) — Vercel (free)
-
-1. Crie conta em https://vercel.com (login com GitHub)
-2. **Add New** → **Project** → importe o repo `orbitalguard`
-3. Configure:
-   - **Root Directory:** `dashboard`
-   - **Framework Preset:** Create React App (detecta sozinho)
-4. Em **Environment Variables**, adicione:
-   - **Name:** `REACT_APP_API_URL`
-   - **Value:** a URL do backend do passo 2 (ex.: `https://orbitalguard-api.onrender.com`)
-5. **Deploy** → aguarde (~1-2 min)
-6. Pronto! URL pública, ex.: `https://orbitalguard.vercel.app`
+> O frontend chama `/api` automaticamente (mesma origem) — **não precisa
+> configurar nenhuma variável de ambiente** pro básico funcionar.
 
 ---
 
-## 4. Gerar os modelos de IA (.pkl)
+## 3. Como funciona (arquitetura Vercel)
 
-Já vêm versionados em `backend/output/`. Para regenerar:
+```
+orbitalguard.vercel.app
+├── /                    → React (dashboard/build)
+├── /api/stats           → FastAPI serverless (api/index.py)
+├── /api/barragens       → ...
+├── /api/reportar        → gamificação
+└── /api/docs            → Swagger da API
+```
+
+Arquivos-chave:
+- `vercel.json` — roteamento (frontend + função Python)
+- `api/index.py` — backend FastAPI (root_path=/api)
+- `api/requirements.txt` — deps Python do serverless
+- `api/output/*.pkl` — modelos de IA (treinados em sklearn 1.3.2)
+
+---
+
+## 4. Regenerar os modelos de IA (opcional)
 
 ```bash
 cd ml
 pip install -r requirements.txt
-python train_models.py
+python train_models.py        # gera .pkl em backend/output/
+cp backend/output/*.pkl ../api/output/   # espelha pra função Vercel
 ```
-
-Gera `modelo_rf.pkl`, `scaler.pkl` etc. em `backend/output/` + `metrics.json`.
 
 ---
 
-## 5. (Opcional) Pipeline SAR real — Sentinel-1
+## 5. Pipeline SAR real — Sentinel-1 (opcional, local)
 
 ```bash
 cd pipeline
 pip install -r requirements.txt
-cp ../.env.example ../.env      # preencha COPERNICUS_USER e COPERNICUS_PASS
-python sentinel_pipeline.py      # busca imagens reais de Brumadinho
+cp ../.env.example ../.env     # preencha COPERNICUS_USER e COPERNICUS_PASS
+python process_brumadinho_real.py   # extrai backscatter real de Brumadinho
+python plot_brumadinho.py           # gera o gráfico
 ```
-
-Resultado de exemplo (16 imagens pré/pós desastre) já está em
-`pipeline/output/brumadinho_sar_imagens.json`.
 
 ---
 
-## ✅ Checklist final
+## ✅ Checklist
 
 - [ ] Senha do Copernicus trocada
 - [ ] Repo público no GitHub
-- [ ] Backend no Render respondendo em `/docs`
-- [ ] `REACT_APP_API_URL` configurada na Vercel
-- [ ] Frontend abrindo e puxando dados do backend
-- [ ] Link público testado no celular
+- [ ] Projeto importado na Vercel (root = raiz do repo)
+- [ ] Deploy concluído
+- [ ] `https://SEU-PROJETO.vercel.app/api/docs` abre o Swagger
+- [ ] Site abre, mapa carrega, clicar numa barragem mostra a ficha
+- [ ] Reportar dá pontos (gamificação)
+
+> 💡 Dica de apresentação: serverless na Vercel **não dorme** como o Render,
+> então o primeiro acesso é rápido. Mesmo assim, abra o link 1 min antes do pitch.

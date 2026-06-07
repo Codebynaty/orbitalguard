@@ -3,7 +3,9 @@ import { MapContainer, TileLayer, CircleMarker, Tooltip, useMap } from 'react-le
 import { AreaChart, Area, XAxis, YAxis, Tooltip as RTooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
 import 'leaflet/dist/leaflet.css';
 
-const API = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+// Em produção (Vercel) a API fica em /api (mesma origem). Em dev, localhost:8000.
+const API = process.env.REACT_APP_API_URL ||
+  (process.env.NODE_ENV === 'production' ? '/api' : 'http://localhost:8000');
 
 const MOCK_BARRAGENS = [
   { id:'B001', nome:'Barragem B1 — Brumadinho', empresa:'Vale S.A.', municipio:'Brumadinho', estado:'MG', lat:-20.1192, lon:-44.1228, altura_m:86, volume_m3:11700000, tipo:'Montante', deformacao_atual_dB:-7.2, risco:'Crítico',
