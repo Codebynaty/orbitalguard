@@ -7,14 +7,25 @@ from fastapi import FastAPI, HTTPException, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional
-import numpy as np
-import joblib
 import json
 import random
 import httpx
 import asyncio
 from datetime import datetime, timedelta
 from pathlib import Path
+
+# numpy/joblib/scikit-learn são OPCIONAIS.
+# Na Vercel (serverless, limite 250 MB) rodamos sem scikit-learn e usamos
+# o classificador por regras (mesmos limiares de dB do modelo). Localmente,
+# se as libs existirem, carrega o Random Forest treinado.
+try:
+    import numpy as np
+    import joblib
+    _ML_DISPONIVEL = True
+except ImportError:
+    np = None
+    joblib = None
+    _ML_DISPONIVEL = False
 
 # root_path=/api: a Vercel encaminha as rotas sob /api para esta function
 app = FastAPI(
@@ -33,14 +44,17 @@ app.add_middleware(
 
 # ─── MODELOS ──────────────────────────────────────────────────────────────────
 OUTPUT_DIR = Path(__file__).resolve().parent / "output"
-try:
-    modelo_rf = joblib.load(OUTPUT_DIR / "modelo_rf.pkl")
-    scaler    = joblib.load(OUTPUT_DIR / "scaler.pkl")
-    print("✅ Modelos carregados")
-except:
-    modelo_rf = None
-    scaler    = None
-    print("⚠️  Modelos não encontrados — usando regras")
+modelo_rf = None
+scaler = None
+if _ML_DISPONIVEL:
+    try:
+        modelo_rf = joblib.load(OUTPUT_DIR / "modelo_rf.pkl")
+        scaler    = joblib.load(OUTPUT_DIR / "scaler.pkl")
+        print("✅ Modelos carregados (Random Forest)")
+    except Exception:
+        print("⚠️  Modelos não encontrados — usando regras")
+else:
+    print("ℹ️  scikit-learn ausente (serverless) — classificador por regras")
 
 CLASSES     = ["Sem Risco", "Atenção", "Crítico"]
 CLASSES_COR = {"Sem Risco": "green", "Atenção": "yellow", "Crítico": "red"}
