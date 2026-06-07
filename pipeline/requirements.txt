@@ -1,0 +1,6 @@
+# Pipeline SAR — Sentinel-1 (Copernicus) + Google Earth Engine
+cdsetool==0.2.13
+earthengine-api==0.1.408
+geemap==0.32.0
+folium==0.15.1
+python-dotenv==1.0.1

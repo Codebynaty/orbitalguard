@@ -1,0 +1,138 @@
+{
+  "fonte": "Copernicus Data Space — Sentinel-1 SLC IW",
+  "aoi": "Brumadinho/MG POLYGON((-44.20 -20.20,...))",
+  "evento": "Colapso Barragem B1 — 25 jan 2019",
+  "pre_desastre": [
+    {
+      "fase": "pre",
+      "nome": "S1B_IW_SLC__1SDV_20181205T082906_20181205T082933_013904_019C93_E880.SAFE",
+      "data": "2018-12-05",
+      "tamanho_gb": 7.28,
+      "online": true,
+      "id": "26f9a3c7-8688-5328-823b-45a519f9cd6e"
+    },
+    {
+      "fase": "pre",
+      "nome": "S1B_IW_SLC__1SDV_20181212T082110_20181212T082136_014006_019FDF_FCBE.SAFE",
+      "data": "2018-12-12",
+      "tamanho_gb": 7.18,
+      "online": true,
+      "id": "afffacc7-2811-54e7-91d2-d425f544378c"
+    },
+    {
+      "fase": "pre",
+      "nome": "S1B_IW_SLC__1SDV_20181217T082906_20181217T082933_014079_01A245_2F57.SAFE",
+      "data": "2018-12-17",
+      "tamanho_gb": 7.28,
+      "online": true,
+      "id": "0353c3c4-72c7-5e8a-b602-b2f78f30863c"
+    },
+    {
+      "fase": "pre",
+      "nome": "S1B_IW_SLC__1SDV_20181224T082109_20181224T082136_014181_01A5A9_AF31.SAFE",
+      "data": "2018-12-24",
+      "tamanho_gb": 7.18,
+      "online": true,
+      "id": "5408d6b2-1a03-506c-9001-bce73c9a2d75"
+    },
+    {
+      "fase": "pre",
+      "nome": "S1B_IW_SLC__1SDV_20181229T082905_20181229T082932_014254_01A81B_2C73.SAFE",
+      "data": "2018-12-29",
+      "tamanho_gb": 7.28,
+      "online": true,
+      "id": "b84d1585-522f-5e47-ae95-fdad10e66317"
+    },
+    {
+      "fase": "pre",
+      "nome": "S1B_IW_SLC__1SDV_20190105T082109_20190105T082136_014356_01AB66_C513.SAFE",
+      "data": "2019-01-05",
+      "tamanho_gb": 7.18,
+      "online": true,
+      "id": "162668fb-0c2c-5b22-b0c6-ae1681c09ef0"
+    },
+    {
+      "fase": "pre",
+      "nome": "S1B_IW_SLC__1SDV_20190110T082905_20190110T082932_014429_01ADC6_97F0.SAFE",
+      "data": "2019-01-10",
+      "tamanho_gb": 7.28,
+      "online": true,
+      "id": "647aaa28-a49a-59ac-896a-7d9cafee03f7"
+    },
+    {
+      "fase": "pre",
+      "nome": "S1B_IW_SLC__1SDV_20190117T082108_20190117T082135_014531_01B10C_6E9E.SAFE",
+      "data": "2019-01-17",
+      "tamanho_gb": 7.18,
+      "online": true,
+      "id": "6cabbfe7-a4f0-5c87-8a77-18cc3dc872e3"
+    },
+    {
+      "fase": "pre",
+      "nome": "S1B_IW_SLC__1SDV_20190122T082904_20190122T082931_014604_01B364_2A14.SAFE",
+      "data": "2019-01-22",
+      "tamanho_gb": 7.28,
+      "online": true,
+      "id": "a9ec3016-a27c-57e7-a4a4-35255b0b0fd1"
+    }
+  ],
+  "pos_desastre": [
+    {
+      "fase": "pos",
+      "nome": "S1B_IW_SLC__1SDV_20190128T212724_20190128T212800_014699_01B67A_6AF6.SAFE",
+      "data": "2019-01-28",
+      "tamanho_gb": 9.18,
+      "online": true,
+      "id": "e1363324-96ae-5cfd-8d53-4aee60a3f913"
+    },
+    {
+      "fase": "pos",
+      "nome": "S1B_IW_SLC__1SDV_20190129T082108_20190129T082135_014706_01B6AE_FEB4.SAFE",
+      "data": "2019-01-29",
+      "tamanho_gb": 7.18,
+      "online": true,
+      "id": "3d0533e1-0bbe-5b6c-a6db-e97cbe31b989"
+    },
+    {
+      "fase": "pos",
+      "nome": "S1B_IW_SLC__1SDV_20190203T082904_20190203T082931_014779_01B90C_2A92.SAFE",
+      "data": "2019-02-03",
+      "tamanho_gb": 7.28,
+      "online": true,
+      "id": "6ac278f8-2e09-5765-a256-511b40eb267a"
+    },
+    {
+      "fase": "pos",
+      "nome": "S1B_IW_SLC__1SDV_20190210T082108_20190210T082135_014881_01BC6A_1CF0.SAFE",
+      "data": "2019-02-10",
+      "tamanho_gb": 7.18,
+      "online": true,
+      "id": "878f46fb-8bed-54d1-8356-15531ae843fa"
+    },
+    {
+      "fase": "pos",
+      "nome": "S1B_IW_SLC__1SDV_20190215T082904_20190215T082931_014954_01BEC4_6670.SAFE",
+      "data": "2019-02-15",
+      "tamanho_gb": 7.28,
+      "online": true,
+      "id": "d49f8ca8-a57f-5a86-9052-bbf18fe4c6a7"
+    },
+    {
+      "fase": "pos",
+      "nome": "S1B_IW_SLC__1SDV_20190222T082108_20190222T082135_015056_01C223_ACDB.SAFE",
+      "data": "2019-02-22",
+      "tamanho_gb": 7.18,
+      "online": true,
+      "id": "1496414b-eab8-57f1-83df-6dd9ba5f4720"
+    },
+    {
+      "fase": "pos",
+      "nome": "S1B_IW_SLC__1SDV_20190227T082904_20190227T082931_015129_01C48C_8C9E.SAFE",
+      "data": "2019-02-27",
+      "tamanho_gb": 7.28,
+      "online": true,
+      "id": "73dcdb12-2962-54b3-9700-fbfcd742a203"
+    }
+  ],
+  "total_imagens": 16
+}

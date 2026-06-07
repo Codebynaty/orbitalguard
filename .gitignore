@@ -1,0 +1,39 @@
+# ─── Segredos (NUNCA comitar) ───────────────────────────────
+.env
+.env.local
+credentials.json
+*.credentials
+~/.config/earthengine/
+
+# ─── Python ──────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.egg-info/
+venv/
+.venv/
+backend/.venv/
+backend/backend_r.py
+backend/backend_run.py
+
+# ─── Dados brutos SAR (pesados, não versionar) ───────────────
+pipeline/data/
+data/raw/
+*.SAFE/
+*.zip
+*.tif
+*.tiff
+
+# ─── Node / build ────────────────────────────────────────────
+node_modules/
+dashboard/build/
+
+# ─── Jupyter ─────────────────────────────────────────────────
+.ipynb_checkpoints/
+
+# ─── OS ──────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# NOTA: backend/output/*.pkl SÃO versionados de propósito
+# (o backend precisa dos modelos treinados no deploy).
+# Gere-os com: cd ml && python train_models.py

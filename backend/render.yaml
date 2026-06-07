@@ -1,0 +1,13 @@
+# Render.com — deploy do backend FastAPI (free tier)
+# Subir este repo no Render → New > Blueprint → aponta pra este arquivo.
+services:
+  - type: web
+    name: orbitalguard-api
+    runtime: python
+    rootDir: backend
+    plan: free
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "uvicorn backend:app --host 0.0.0.0 --port $PORT"
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11.9"
