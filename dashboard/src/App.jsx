@@ -106,11 +106,20 @@ function MapPopup({ barragem, historico, votos, onVotar, onClose, imgError, setI
         </div>
 
         {/* MÉTRICAS */}
-        <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:6,marginBottom:12}}>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:6,marginBottom:8}}>
           {[['Altura',barragem.altura_m+'m'],['Volume',fmt(barragem.volume_m3)],['SAR',barragem.deformacao_atual_dB+' dB']].map(([k,v])=>(
             <div key={k} style={{background:'#050810',borderRadius:6,padding:'6px 8px',textAlign:'center'}}>
               <div style={{fontFamily:'Space Mono,monospace',fontSize:12,fontWeight:700,color:k==='SAR'?cor:'#e2e8f0'}}>{v}</div>
               <div style={{fontSize:9,color:'#4a5568',textTransform:'uppercase',letterSpacing:'0.06em',marginTop:1}}>{k}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* FICHA TÉCNICA ANM */}
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'4px 10px',marginBottom:12,fontSize:10,fontFamily:'Space Mono,monospace'}}>
+          {[['Tipo',barragem.tipo],['Categoria ANM',barragem.categoria_anm],['Dano Potencial',barragem.dpa],['Estado',barragem.estado]].filter(([,v])=>v).map(([k,v])=>(
+            <div key={k} style={{display:'flex',justifyContent:'space-between',borderBottom:'1px solid rgba(99,179,237,0.06)',paddingBottom:2}}>
+              <span style={{color:'#4a5568'}}>{k}</span><span style={{color:'#cbd5e0'}}>{v}</span>
             </div>
           ))}
         </div>
@@ -200,6 +209,19 @@ export default function App() {
   const [view,      setView]      = useState('mapa');
   const [imgError,  setImgError]  = useState({});
   const [votos,     setVotos]     = useState({});
+  // gamificação
+  const [userId]    = useState(()=>{
+    let id = localStorage.getItem('og_uid');
+    if(!id){ id = 'guardiao_'+Math.random().toString(36).slice(2,8); localStorage.setItem('og_uid',id); }
+    return id;
+  });
+  const [perfil,    setPerfil]    = useState({pontos:0,streak:0,badge:null,reports:0});
+  const [toast,     setToast]     = useState(null);
+
+  useEffect(()=>{
+    fetch(`${API}/perfil/${userId}`).then(r=>r.json())
+      .then(setPerfil).catch(()=>{});
+  },[userId]);
 
   useEffect(()=>{
     fetch(`${API}/barragens`).then(r=>r.json())
@@ -214,16 +236,31 @@ export default function App() {
       .catch(()=>setHistorico(gerarHistorico(selected)));
   },[selected]);
 
-  const handleVotar = (id, tipo) => {
+  const handleVotar = (id, tipo, justificativa) => {
+    // otimista: atualiza UI na hora
     setVotos(prev => {
       const atual = prev[id] || { confirmar:0, contestar:0, meuVoto:null };
-      if (atual.meuVoto === tipo) return prev; // já votou
+      if (atual.meuVoto === tipo) return prev;
       const novo = { ...atual };
-      if (atual.meuVoto) novo[atual.meuVoto]--; // desfaz voto anterior
+      if (atual.meuVoto) novo[atual.meuVoto]--;
       novo[tipo]++;
       novo.meuVoto = tipo;
       return { ...prev, [id]: novo };
     });
+    // persiste no backend + gamificação
+    fetch(`${API}/reportar`,{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({barragem_id:id, tipo, usuario_id:userId, justificativa})
+    }).then(r=>r.json()).then(d=>{
+      if(d.status==='ticket_registrado'){
+        setPerfil(p=>({...p, ...(d.perfil||{}), badge:d.perfil?.badge}));
+        setToast({pontos:d.pontos_ganhos, streak:d.streak});
+        setTimeout(()=>setToast(null), 3200);
+      } else if(d.status==='ja_reportado_hoje'){
+        setToast({msg:'Você já verificou esta barragem hoje'});
+        setTimeout(()=>setToast(null), 2600);
+      }
+    }).catch(()=>{});
   };
 
   const filtradas = useMemo(()=>
@@ -250,6 +287,14 @@ export default function App() {
         </div>
         <div style={{display:'flex',gap:16,alignItems:'center'}}>
           {!apiOk&&<div style={{fontFamily:'Space Mono,monospace',fontSize:10,color:'#ecc94b',background:'rgba(236,201,75,0.1)',padding:'4px 10px',borderRadius:4,border:'1px solid rgba(236,201,75,0.3)'}}>MODO DEMO</div>}
+          {/* GAMIFICAÇÃO — pontos do guardião */}
+          <div title={`Você é ${userId}`} style={{display:'flex',alignItems:'center',gap:8,background:'linear-gradient(135deg,rgba(99,179,237,0.12),rgba(159,122,234,0.12))',border:'1px solid rgba(99,179,237,0.25)',borderRadius:8,padding:'5px 12px'}}>
+            <span style={{fontSize:15}}>{perfil.badge?.emoji || '🔰'}</span>
+            <div style={{lineHeight:1.1}}>
+              <div style={{fontFamily:'Space Mono,monospace',fontSize:12,fontWeight:700,color:'#f6e05e'}}>{(perfil.pontos||0).toLocaleString('pt-BR')} pts</div>
+              <div style={{fontFamily:'Space Mono,monospace',fontSize:8,color:'#94a3b8',textTransform:'uppercase',letterSpacing:'0.05em'}}>{perfil.badge?.nivel || 'Aspirante'}{perfil.streak>1?` · 🔥${perfil.streak}d`:''}</div>
+            </div>
+          </div>
           <div style={{display:'flex',background:'#0a0f1e',border:'1px solid rgba(99,179,237,0.15)',borderRadius:6,overflow:'hidden'}}>
             {['mapa','card'].map(v=>(
               <button key={v} onClick={()=>setView(v)} style={{padding:'5px 14px',fontSize:11,fontFamily:'Space Mono,monospace',background:view===v?'rgba(99,179,237,0.15)':'transparent',color:view===v?'#63b3ed':'#94a3b8',border:'none',cursor:'pointer',textTransform:'uppercase',letterSpacing:'0.05em'}}>
@@ -456,6 +501,30 @@ export default function App() {
           )}
         </div>
       </main>
+
+      {/* TOAST DE GAMIFICAÇÃO */}
+      {toast && (
+        <div style={{
+          position:'fixed', bottom:24, left:'50%', transform:'translateX(-50%)', zIndex:9999,
+          background:'linear-gradient(135deg,#1a2138,#0a0f1e)',
+          border:'1px solid rgba(246,224,94,0.4)', borderRadius:12,
+          padding:'12px 22px', boxShadow:'0 8px 32px rgba(0,0,0,0.6), 0 0 24px rgba(246,224,94,0.15)',
+          display:'flex', alignItems:'center', gap:12, animation:'slideUp 0.3s ease',
+        }}>
+          <style>{`@keyframes slideUp{from{opacity:0;transform:translate(-50%,16px)}to{opacity:1;transform:translate(-50%,0)}}`}</style>
+          {toast.pontos!=null ? (
+            <>
+              <span style={{fontSize:26}}>🌟</span>
+              <div>
+                <div style={{fontFamily:'Space Mono,monospace',fontSize:15,fontWeight:700,color:'#f6e05e'}}>+{toast.pontos} pontos!</div>
+                <div style={{fontFamily:'Space Mono,monospace',fontSize:10,color:'#94a3b8'}}>Verificação registrada{toast.streak>1?` · 🔥 streak de ${toast.streak} dias`:''}</div>
+              </div>
+            </>
+          ) : (
+            <div style={{fontFamily:'Space Mono,monospace',fontSize:12,color:'#94a3b8'}}>{toast.msg}</div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

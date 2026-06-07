@@ -1,0 +1,127 @@
+{
+  "fonte": "Sentinel-1 GRD (AWS Open Data via Earth Search STAC)",
+  "barragem": "B1 — Brumadinho/MG",
+  "coordenada": {
+    "lat": -20.1192,
+    "lon": -44.1228
+  },
+  "evento_colapso": "2019-01-25",
+  "baseline_pre_dB": 46.947,
+  "media_pos_dB": 49.03,
+  "queda_pos_vs_pre_dB": 2.082,
+  "n_cenas": 16,
+  "serie": [
+    {
+      "data": "2018-12-05",
+      "fase": "pre",
+      "backscatter_vv_dB": 48.25,
+      "cena": "S1B_IW_GRDH_1SDV_20181205T082907_20181205T082932_013904_019C93",
+      "deformacao_dB": 1.303
+    },
+    {
+      "data": "2018-12-12",
+      "fase": "pre",
+      "backscatter_vv_dB": 46.0,
+      "cena": "S1B_IW_GRDH_1SDV_20181212T082110_20181212T082135_014006_019FDF",
+      "deformacao_dB": -0.947
+    },
+    {
+      "data": "2018-12-17",
+      "fase": "pre",
+      "backscatter_vv_dB": 47.316,
+      "cena": "S1B_IW_GRDH_1SDV_20181217T082906_20181217T082931_014079_01A245",
+      "deformacao_dB": 0.369
+    },
+    {
+      "data": "2018-12-24",
+      "fase": "pre",
+      "backscatter_vv_dB": 45.602,
+      "cena": "S1B_IW_GRDH_1SDV_20181224T082110_20181224T082135_014181_01A5A9",
+      "deformacao_dB": -1.345
+    },
+    {
+      "data": "2018-12-29",
+      "fase": "pre",
+      "backscatter_vv_dB": 48.661,
+      "cena": "S1B_IW_GRDH_1SDV_20181229T082906_20181229T082931_014254_01A81B",
+      "deformacao_dB": 1.714
+    },
+    {
+      "data": "2019-01-05",
+      "fase": "pre",
+      "backscatter_vv_dB": 46.021,
+      "cena": "S1B_IW_GRDH_1SDV_20190105T082110_20190105T082135_014356_01AB66",
+      "deformacao_dB": -0.926
+    },
+    {
+      "data": "2019-01-10",
+      "fase": "pre",
+      "backscatter_vv_dB": 47.572,
+      "cena": "S1B_IW_GRDH_1SDV_20190110T082906_20190110T082931_014429_01ADC6",
+      "deformacao_dB": 0.625
+    },
+    {
+      "data": "2019-01-17",
+      "fase": "pre",
+      "backscatter_vv_dB": 45.653,
+      "cena": "S1B_IW_GRDH_1SDV_20190117T082109_20190117T082134_014531_01B10C",
+      "deformacao_dB": -1.294
+    },
+    {
+      "data": "2019-01-22",
+      "fase": "pre",
+      "backscatter_vv_dB": 47.451,
+      "cena": "S1B_IW_GRDH_1SDV_20190122T082905_20190122T082930_014604_01B364",
+      "deformacao_dB": 0.504
+    },
+    {
+      "data": "2019-01-28",
+      "fase": "pos",
+      "backscatter_vv_dB": 48.506,
+      "cena": "S1B_IW_GRDH_1SDV_20190128T212724_20190128T212800_014699_01B67A",
+      "deformacao_dB": 1.559
+    },
+    {
+      "data": "2019-01-29",
+      "fase": "pos",
+      "backscatter_vv_dB": 46.892,
+      "cena": "S1B_IW_GRDH_1SDV_20190129T082109_20190129T082134_014706_01B6AE",
+      "deformacao_dB": -0.055
+    },
+    {
+      "data": "2019-02-03",
+      "fase": "pos",
+      "backscatter_vv_dB": 49.933,
+      "cena": "S1B_IW_GRDH_1SDV_20190203T082905_20190203T082930_014779_01B90C",
+      "deformacao_dB": 2.986
+    },
+    {
+      "data": "2019-02-10",
+      "fase": "pos",
+      "backscatter_vv_dB": 47.888,
+      "cena": "S1B_IW_GRDH_1SDV_20190210T082109_20190210T082134_014881_01BC6A",
+      "deformacao_dB": 0.941
+    },
+    {
+      "data": "2019-02-15",
+      "fase": "pos",
+      "backscatter_vv_dB": 50.735,
+      "cena": "S1B_IW_GRDH_1SDV_20190215T082905_20190215T082930_014954_01BEC4",
+      "deformacao_dB": 3.788
+    },
+    {
+      "data": "2019-02-22",
+      "fase": "pos",
+      "backscatter_vv_dB": 48.232,
+      "cena": "S1B_IW_GRDH_1SDV_20190222T082108_20190222T082133_015056_01C223",
+      "deformacao_dB": 1.285
+    },
+    {
+      "data": "2019-02-27",
+      "fase": "pos",
+      "backscatter_vv_dB": 51.022,
+      "cena": "S1B_IW_GRDH_1SDV_20190227T082905_20190227T082930_015129_01C48C",
+      "deformacao_dB": 4.075
+    }
+  ]
+}

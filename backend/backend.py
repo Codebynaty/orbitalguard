@@ -114,8 +114,49 @@ class VotoRequest(BaseModel):
     tipo: str  # "confirmar" | "contestar"
     usuario_id: Optional[str] = "anonimo"
 
+class ReportRequest(BaseModel):
+    barragem_id: str
+    tipo: str                       # "confirmar" | "contestar"
+    usuario_id: Optional[str] = "anonimo"
+    justificativa: Optional[str] = None
+
 # Armazenamento em memória dos votos
 votos_db = {}
+
+# ─── GAMIFICAÇÃO ──────────────────────────────────────────────────────────────
+# Perfis de usuário: pontos, streak, histórico de reports
+usuarios_db = {}          # usuario_id -> {pontos, reports, streak, ultimo_dia, badges}
+reports_db = []           # lista global de reports (tickets de verificação)
+
+PONTOS = {
+    "Sem Risco": 10,      # verificação de barragem estável
+    "Atenção":   25,
+    "Crítico":   50,
+    "acerto_ia": 30,      # bônus por concordar com a IA
+    "streak_7":  100,
+    "streak_30": 500,
+}
+
+BADGES = [
+    {"nivel": "Guardião",     "min": 500,   "emoji": "🛡️",  "desc": "Verificações consistentes"},
+    {"nivel": "Sentinela",    "min": 2000,  "emoji": "👁️",  "desc": "Especialista regional"},
+    {"nivel": "Especialista", "min": 10000, "emoji": "🏆",  "desc": "Referência nacional"},
+]
+
+
+def _badge_do(pontos: int):
+    atual = None
+    for b in BADGES:
+        if pontos >= b["min"]:
+            atual = b
+    return atual
+
+
+def _perfil(uid: str):
+    return usuarios_db.setdefault(uid, {
+        "usuario_id": uid, "pontos": 0, "reports": 0,
+        "streak": 0, "ultimo_dia": None, "badges": [],
+    })
 
 # ─── ENDPOINTS ────────────────────────────────────────────────────────────────
 @app.get("/")
@@ -392,6 +433,126 @@ async def atualizar_dados():
         "fonte": ANM_URL,
         "total_barragens": len(BARRAGENS_REAIS),
         "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+    }
+
+
+# ─── GAMIFICAÇÃO — ENDPOINTS ─────────────────────────────────────────────────────
+@app.post("/reportar")
+def reportar(req: ReportRequest):
+    """Cria um ticket de verificação e pontua o usuário (gamificação)."""
+    barragem = next((b for b in BARRAGENS_REAIS if b["id"] == req.barragem_id), None)
+    if not barragem:
+        raise HTTPException(status_code=404, detail="Barragem não encontrada")
+    if req.tipo not in ("confirmar", "contestar"):
+        raise HTTPException(status_code=400, detail="tipo deve ser confirmar ou contestar")
+
+    uid = req.usuario_id or "anonimo"
+    perfil = _perfil(uid)
+    hoje = datetime.now().strftime("%Y-%m-%d")
+
+    # 1 ticket por barragem por usuário por dia
+    ja_reportou = any(
+        r for r in reports_db
+        if r["usuario_id"] == uid and r["barragem_id"] == req.barragem_id and r["dia"] == hoje
+    )
+    if ja_reportou:
+        return {"status": "ja_reportado_hoje", "pontos_ganhos": 0,
+                "perfil": {**perfil, "badge": _badge_do(perfil["pontos"])}}
+
+    # pontuação base por nível de risco
+    ganho = PONTOS.get(barragem["risco"], 10)
+    # bônus se concordar com a IA (confirmar risco em barragem não-estável)
+    if req.tipo == "confirmar" and barragem["risco"] != "Sem Risco":
+        ganho += PONTOS["acerto_ia"]
+
+    # streak diário
+    if perfil["ultimo_dia"]:
+        ultimo = datetime.strptime(perfil["ultimo_dia"], "%Y-%m-%d")
+        delta = (datetime.strptime(hoje, "%Y-%m-%d") - ultimo).days
+        if delta == 1:
+            perfil["streak"] += 1
+        elif delta > 1:
+            perfil["streak"] = 1
+    else:
+        perfil["streak"] = 1
+    perfil["ultimo_dia"] = hoje
+
+    if perfil["streak"] == 7:
+        ganho += PONTOS["streak_7"]
+    if perfil["streak"] == 30:
+        ganho += PONTOS["streak_30"]
+
+    perfil["pontos"] += ganho
+    perfil["reports"] += 1
+    badge = _badge_do(perfil["pontos"])
+    perfil["badges"] = [b["nivel"] for b in BADGES if perfil["pontos"] >= b["min"]]
+
+    # registra ticket + reflete no contador de votos da barragem
+    ticket = {
+        "barragem_id": req.barragem_id, "usuario_id": uid, "tipo": req.tipo,
+        "justificativa": req.justificativa, "dia": hoje,
+        "timestamp": datetime.now().isoformat(timespec="seconds"),
+        "risco_barragem": barragem["risco"], "pontos": ganho,
+    }
+    reports_db.append(ticket)
+    vb = votos_db.setdefault(req.barragem_id, {"confirmar": 0, "contestar": 0})
+    vb[req.tipo] = vb.get(req.tipo, 0) + 1
+
+    return {
+        "status": "ticket_registrado",
+        "pontos_ganhos": ganho,
+        "streak": perfil["streak"],
+        "perfil": {**perfil, "badge": badge},
+        "consenso": vb,
+    }
+
+
+@app.get("/perfil/{usuario_id}")
+def perfil_usuario(usuario_id: str):
+    """Retorna o perfil de gamificação do usuário (pontos, streak, badge)."""
+    perfil = _perfil(usuario_id)
+    badge = _badge_do(perfil["pontos"])
+    proximo = next((b for b in BADGES if perfil["pontos"] < b["min"]), None)
+    return {
+        **perfil,
+        "badge": badge,
+        "proximo_badge": proximo,
+        "falta_para_proximo": (proximo["min"] - perfil["pontos"]) if proximo else 0,
+    }
+
+
+@app.get("/guardioes")
+def ranking_guardioes(limit: int = 20):
+    """Ranking dos usuários por pontos (leaderboard de gamificação)."""
+    ordenados = sorted(usuarios_db.values(), key=lambda u: -u["pontos"])[:limit]
+    return {
+        "total_guardioes": len(usuarios_db),
+        "ranking": [
+            {"posicao": i + 1, "usuario_id": u["usuario_id"], "pontos": u["pontos"],
+             "reports": u["reports"], "streak": u["streak"],
+             "badge": (_badge_do(u["pontos"]) or {}).get("nivel")}
+            for i, u in enumerate(ordenados)
+        ],
+        "badges_disponiveis": BADGES,
+    }
+
+
+@app.get("/tickets/{barragem_id}")
+def tickets_barragem(barragem_id: str):
+    """Tickets de verificação de uma barragem + consenso da comunidade."""
+    tickets = [r for r in reports_db if r["barragem_id"] == barragem_id]
+    conf = sum(1 for t in tickets if t["tipo"] == "confirmar")
+    cont = sum(1 for t in tickets if t["tipo"] == "contestar")
+    total = conf + cont
+    return {
+        "barragem_id": barragem_id,
+        "total_tickets": total,
+        "consenso": {
+            "confirmam_risco": conf,
+            "contestam": cont,
+            "pct_confirmam": round(100 * conf / total, 1) if total else 0,
+        },
+        "tickets": sorted(tickets, key=lambda t: t["timestamp"], reverse=True)[:50],
     }
 
 
