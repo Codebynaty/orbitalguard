@@ -61,6 +61,21 @@ BARRAGENS_REAIS = [
     {"id":"B008","nome":"Barragem Doutor","empresa":"Anglo American","municipio":"Conceição do Mato Dentro","estado":"MG","lat":-19.1200,"lon":-43.4500,"altura_m":55,"volume_m3":5600000,"tipo":"Aterro","deformacao_atual_dB":-0.8,"risco":"Sem Risco","categoria_anm":"Baixo","dpa":"Médio","descricao":"Estrutura de aterro compactado com monitoramento instrumentado contínuo. Estável nos últimos 12 meses.","imagem":"https://upload.wikimedia.org/wikipedia/commons/thumb/c/c9/Mina_Casa_de_Pedra_-_Congonhas_MG.jpg/640px-Mina_Casa_de_Pedra_-_Congonhas_MG.jpg"},
 ]
 
+# ─── IMAGEM DE SATÉLITE (Esri World Imagery, gratuito, sem API key) ───────────
+def _url_satelite(lat, lon, dlat=0.015, dlon=0.020, w=640, h=400):
+    """Gera URL de imagem de satélite real da coordenada da barragem."""
+    bbox = f"{lon-dlon},{lat-dlat},{lon+dlon},{lat+dlat}"
+    return (
+        "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/"
+        f"MapServer/export?bbox={bbox}&bboxSR=4326&size={w},{h}"
+        "&format=jpg&f=image"
+    )
+
+# substitui as imagens (Wikipedia quebradas) por satélite real de cada barragem
+for _b in BARRAGENS_REAIS:
+    _b["imagem"] = _url_satelite(_b["lat"], _b["lon"])
+
+
 
 async def tentar_buscar_anm():
     """Tenta buscar dados atualizados do SIGBM/ANM."""

@@ -10,19 +10,19 @@ const API = process.env.REACT_APP_API_URL ||
 const MOCK_BARRAGENS = [
   { id:'B001', nome:'Barragem B1 — Brumadinho', empresa:'Vale S.A.', municipio:'Brumadinho', estado:'MG', lat:-20.1192, lon:-44.1228, altura_m:86, volume_m3:11700000, tipo:'Montante', deformacao_atual_dB:-7.2, risco:'Crítico',
     descricao:'Colapsou em 25 de janeiro de 2019, causando 270 mortes e liberando 12 milhões de m³ de rejeitos. Tornou-se o maior desastre industrial do Brasil e símbolo da urgência no monitoramento de barragens com tecnologia orbital.',
-    imagem:'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Brumadinho_dam_failure_aerial_photo_%282019%29.jpg/640px-Brumadinho_dam_failure_aerial_photo_%282019%29.jpg' },
+    imagem:'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=-44.1428,-20.1342,-44.102799999999995,-20.1042&bboxSR=4326&size=640,400&format=jpg&f=image' },
   { id:'B002', nome:'Barragem Germano', empresa:'Samarco', municipio:'Mariana', estado:'MG', lat:-20.2833, lon:-43.6167, altura_m:110, volume_m3:55000000, tipo:'Montante', deformacao_atual_dB:-2.8, risco:'Atenção',
     descricao:'Rompeu em novembro de 2015, liberando 40 milhões de m³ no Rio Doce — o maior desastre ambiental do Brasil. O rio levou meses para se recuperar parcialmente e comunidades ribeirinhas foram afetadas por centenas de km.',
-    imagem:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Rio_doce_pluma.jpg/640px-Rio_doce_pluma.jpg' },
+    imagem:'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=-43.636700000000005,-20.2983,-43.5967,-20.2683&bboxSR=4326&size=640,400&format=jpg&f=image' },
   { id:'B003', nome:'Barragem Casa de Pedra', empresa:'CSN', municipio:'Congonhas', estado:'MG', lat:-20.5333, lon:-43.8500, altura_m:130, volume_m3:89000000, tipo:'Aterro', deformacao_atual_dB:-0.4, risco:'Sem Risco',
     descricao:'Uma das maiores barragens de rejeito da América Latina, operada pela CSN em Congonhas. Estrutura em aterro de 130 metros com monitoramento instrumentado. Atualmente estável dentro dos parâmetros normais de operação.',
-    imagem:'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c9/Mina_Casa_de_Pedra_-_Congonhas_MG.jpg/640px-Mina_Casa_de_Pedra_-_Congonhas_MG.jpg' },
+    imagem:'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=-43.870000000000005,-20.5483,-43.83,-20.5183&bboxSR=4326&size=640,400&format=jpg&f=image' },
   { id:'B004', nome:'Barragem Xingu', empresa:'Anglo American', municipio:'Conceição do Mato Dentro', estado:'MG', lat:-19.0333, lon:-43.4167, altura_m:95, volume_m3:32000000, tipo:'Montante', deformacao_atual_dB:-1.1, risco:'Sem Risco',
     descricao:'Parte do Projeto Minas-Rio da Anglo American, integrada ao maior mineroduto do mundo com 529 km. Utiliza tecnologia de filtro a seco, considerada mais segura que o alteamento a montante tradicional.',
-    imagem:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/Mina_de_Alegria_%28Mariana%2C_MG%29.jpg/640px-Mina_de_Alegria_%28Mariana%2C_MG%29.jpg' },
+    imagem:'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=-43.4367,-19.0483,-43.396699999999996,-19.0183&bboxSR=4326&size=640,400&format=jpg&f=image' },
   { id:'B005', nome:'Barragem Alegria', empresa:'Vale S.A.', municipio:'Mariana', estado:'MG', lat:-20.3667, lon:-43.4333, altura_m:78, volume_m3:18500000, tipo:'Linha de centro', deformacao_atual_dB:-3.5, risco:'Atenção',
     descricao:'Barragem da Vale próxima ao complexo de Germano. Dados SAR indicam deformação moderada nos últimos 30 dias, com tendência de queda na reflectância radar — sinal que requer atenção reforçada e inspeção presencial.',
-    imagem:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Rio_doce_pluma.jpg/640px-Rio_doce_pluma.jpg' },
+    imagem:'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=-43.453300000000006,-20.381700000000002,-43.4133,-20.3517&bboxSR=4326&size=640,400&format=jpg&f=image' },
 ];
 
 function gerarHistorico(barragem, dias=90) {
