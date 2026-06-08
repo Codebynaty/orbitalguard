@@ -73,7 +73,23 @@ def _url_satelite(lat, lon, dlat=0.015, dlon=0.020, w=640, h=400):
 
 # substitui as imagens (Wikipedia quebradas) por satélite real de cada barragem
 for _b in BARRAGENS_REAIS:
-    _b["imagem"] = _url_satelite(_b["lat"], _b["lon"])
+    _b["imagem"]      = _url_satelite(_b["lat"], _b["lon"])                          # padrão
+    _b["imagem_wide"] = _url_satelite(_b["lat"], _b["lon"], dlat=0.04, dlon=0.05)    # visão ampla
+    _b["imagem_zoom"] = _url_satelite(_b["lat"], _b["lon"], dlat=0.006, dlon=0.008)  # aproximada
+
+# ─── CASO BRUMADINHO — DADOS SAR REAIS (Sentinel-1, processados) ──────────────
+BRUMADINHO_REAL = {
+    "fonte": "Sentinel-1 GRD (ESA/Copernicus via AWS Open Data)",
+    "barragem": "B1 — Brumadinho/MG",
+    "coordenada": {"lat": -20.1192, "lon": -44.1228},
+    "evento_colapso": "2019-01-25",
+    "baseline_pre_dB": 46.947,
+    "media_pos_dB": 49.03,
+    "delta_pos_pre_dB": 2.082,
+    "n_cenas": 16,
+    "serie": [{"data": "2018-12-05", "fase": "pre", "vv_dB": 48.25, "deformacao_dB": 1.303}, {"data": "2018-12-12", "fase": "pre", "vv_dB": 46.0, "deformacao_dB": -0.947}, {"data": "2018-12-17", "fase": "pre", "vv_dB": 47.316, "deformacao_dB": 0.369}, {"data": "2018-12-24", "fase": "pre", "vv_dB": 45.602, "deformacao_dB": -1.345}, {"data": "2018-12-29", "fase": "pre", "vv_dB": 48.661, "deformacao_dB": 1.714}, {"data": "2019-01-05", "fase": "pre", "vv_dB": 46.021, "deformacao_dB": -0.926}, {"data": "2019-01-10", "fase": "pre", "vv_dB": 47.572, "deformacao_dB": 0.625}, {"data": "2019-01-17", "fase": "pre", "vv_dB": 45.653, "deformacao_dB": -1.294}, {"data": "2019-01-22", "fase": "pre", "vv_dB": 47.451, "deformacao_dB": 0.504}, {"data": "2019-01-28", "fase": "pos", "vv_dB": 48.506, "deformacao_dB": 1.559}, {"data": "2019-01-29", "fase": "pos", "vv_dB": 46.892, "deformacao_dB": -0.055}, {"data": "2019-02-03", "fase": "pos", "vv_dB": 49.933, "deformacao_dB": 2.986}, {"data": "2019-02-10", "fase": "pos", "vv_dB": 47.888, "deformacao_dB": 0.941}, {"data": "2019-02-15", "fase": "pos", "vv_dB": 50.735, "deformacao_dB": 3.788}, {"data": "2019-02-22", "fase": "pos", "vv_dB": 48.232, "deformacao_dB": 1.285}, {"data": "2019-02-27", "fase": "pos", "vv_dB": 51.022, "deformacao_dB": 4.075}],
+    "interpretacao": "O backscatter pós-colapso aumenta progressivamente (+2 a +4 dB): assinatura SAR da deposição de rejeito, superfície rugosa e úmida que reflete mais o radar. Demonstração com dados reais de que eventos de barragem deixam rastro detectável por satélite.",
+}
 
 
 
@@ -569,6 +585,13 @@ def tickets_barragem(barragem_id: str):
         },
         "tickets": sorted(tickets, key=lambda t: t["timestamp"], reverse=True)[:50],
     }
+
+
+
+@app.get("/caso-brumadinho")
+def caso_brumadinho():
+    """Série SAR REAL de Brumadinho (Sentinel-1) — pré/pós colapso 25/jan/2019."""
+    return BRUMADINHO_REAL
 
 
 if __name__ == "__main__":

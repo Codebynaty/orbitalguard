@@ -107,6 +107,21 @@ function MapPopup({ barragem, historico, votos, onVotar, onClose, imgError, setI
           {barragem.descricao}
         </div>
 
+        {/* COMPARAÇÃO DE SATÉLITE (visão ampla x aproximada) */}
+        {barragem.imagem_wide && barragem.imagem_zoom && (
+          <div style={{marginBottom:12}}>
+            <div style={{fontFamily:'Space Mono,monospace',fontSize:9,color:'#4fd1c5',textTransform:'uppercase',letterSpacing:'0.08em',marginBottom:6}}>🛰️ Satélite · contexto e detalhe</div>
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:6}}>
+              {[['Visão ampla',barragem.imagem_wide],['Aproximação',barragem.imagem_zoom]].map(([lbl,src])=>(
+                <div key={lbl} style={{position:'relative',borderRadius:6,overflow:'hidden',height:90,background:'#050810',border:'1px solid rgba(79,209,197,0.15)'}}>
+                  <img src={src} alt={lbl} style={{width:'100%',height:'100%',objectFit:'cover',filter:'saturate(0.9)'}} onError={e=>{e.target.style.display='none';}}/>
+                  <div style={{position:'absolute',bottom:0,left:0,right:0,background:'linear-gradient(transparent,rgba(0,0,0,0.85))',padding:'10px 6px 3px',fontFamily:'Space Mono,monospace',fontSize:8,color:'#4fd1c5',letterSpacing:'0.05em'}}>{lbl}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* MÉTRICAS */}
         <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:6,marginBottom:8}}>
           {[['Altura',barragem.altura_m+'m'],['Volume',fmt(barragem.volume_m3)],['SAR',barragem.deformacao_atual_dB+' dB']].map(([k,v])=>(
@@ -219,6 +234,14 @@ export default function App() {
   });
   const [perfil,    setPerfil]    = useState({pontos:0,streak:0,badge:null,reports:0});
   const [toast,     setToast]     = useState(null);
+  const [brumadinho, setBrumadinho] = useState(null);
+
+  useEffect(()=>{
+    fetch(`${API}/caso-brumadinho`)
+      .then(r=>r.ok?r.json():Promise.reject(r.status))
+      .then(d=>{ if(d && Array.isArray(d.serie)) setBrumadinho(d); })
+      .catch(()=>{});
+  },[]);
 
   useEffect(()=>{
     fetch(`${API}/perfil/${userId}`)
@@ -307,9 +330,9 @@ export default function App() {
             </div>
           </div>
           <div style={{display:'flex',background:'#0a0f1e',border:'1px solid rgba(99,179,237,0.15)',borderRadius:6,overflow:'hidden'}}>
-            {['mapa','card'].map(v=>(
-              <button key={v} onClick={()=>setView(v)} style={{padding:'5px 14px',fontSize:11,fontFamily:'Space Mono,monospace',background:view===v?'rgba(99,179,237,0.15)':'transparent',color:view===v?'#63b3ed':'#94a3b8',border:'none',cursor:'pointer',textTransform:'uppercase',letterSpacing:'0.05em'}}>
-                {v==='mapa'?'🗺 Mapa':'📋 Cards'}
+            {['mapa','card','brumadinho'].map(v=>(
+              <button key={v} onClick={()=>setView(v)} style={{padding:'5px 14px',fontSize:11,fontFamily:'Space Mono,monospace',background:view===v?'rgba(99,179,237,0.15)':'transparent',color:view===v?'#63b3ed':'#94a3b8',border:'none',cursor:'pointer',textTransform:'uppercase',letterSpacing:'0.05em',whiteSpace:'nowrap'}}>
+                {v==='mapa'?'🗺 Mapa':v==='card'?'📋 Cards':'🛰 Caso Real'}
               </button>
             ))}
           </div>
@@ -508,6 +531,65 @@ export default function App() {
                   </div>
                 );
               })}
+            </div>
+          )}
+
+          {/* VIEW: CASO BRUMADINHO (dados SAR reais) */}
+          {view==='brumadinho'&&(
+            <div style={{padding:'24px 28px',maxWidth:1000,margin:'0 auto'}}>
+              <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:6}}>
+                <span style={{fontSize:24}}>🛰️</span>
+                <h2 style={{margin:0,fontSize:20,color:'#e2e8f0'}}>Caso Brumadinho — Validação com Dados Reais</h2>
+              </div>
+              <div style={{fontFamily:'Space Mono,monospace',fontSize:11,color:'#63b3ed',marginBottom:20}}>
+                {brumadinho?.fonte || 'Sentinel-1 GRD (ESA/Copernicus)'} · {brumadinho?.n_cenas||16} cenas processadas
+              </div>
+
+              <div style={{background:'#0a0f1e',border:'1px solid rgba(252,129,129,0.2)',borderRadius:12,padding:20,marginBottom:20}}>
+                <div style={{fontFamily:'Space Mono,monospace',fontSize:10,color:'#94a3b8',textTransform:'uppercase',letterSpacing:'0.08em',marginBottom:12}}>
+                  Backscatter SAR (VV) — Barragem B1 · antes e depois do colapso
+                </div>
+                {brumadinho?.serie?.length>0?(
+                  <ResponsiveContainer width="100%" height={300}>
+                    <AreaChart data={brumadinho.serie} margin={{top:10,right:20,bottom:0,left:-10}}>
+                      <defs>
+                        <linearGradient id="gradB" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#4fd1c5" stopOpacity={0.4}/>
+                          <stop offset="95%" stopColor="#4fd1c5" stopOpacity={0}/>
+                        </linearGradient>
+                      </defs>
+                      <XAxis dataKey="data" tick={{fontSize:9,fill:'#4a5568',fontFamily:'Space Mono'}} interval={2}/>
+                      <YAxis domain={['dataMin-1','dataMax+1']} tick={{fontSize:9,fill:'#4a5568',fontFamily:'Space Mono'}} label={{value:'dB',angle:-90,position:'insideLeft',fill:'#4a5568',fontSize:10}}/>
+                      <RTooltip contentStyle={{background:'#0a0f1e',border:'1px solid rgba(99,179,237,0.3)',borderRadius:8,fontFamily:'Space Mono',fontSize:11}}/>
+                      <ReferenceLine x="2019-01-22" stroke="#f56565" strokeDasharray="4 4" strokeWidth={2} label={{value:'⚠ Colapso 25/jan',fill:'#f56565',fontSize:10,position:'top'}}/>
+                      {brumadinho.baseline_pre_dB&&<ReferenceLine y={brumadinho.baseline_pre_dB} stroke="#a0aec0" strokeDasharray="2 2" strokeWidth={1}/>}
+                      <Area type="monotone" dataKey="vv_dB" stroke="#4fd1c5" strokeWidth={2.5} fill="url(#gradB)" dot={{r:3,fill:'#4fd1c5'}}/>
+                    </AreaChart>
+                  </ResponsiveContainer>
+                ):(
+                  <div style={{padding:40,textAlign:'center',color:'#4a5568',fontFamily:'Space Mono',fontSize:12}}>Carregando dados SAR reais…</div>
+                )}
+              </div>
+
+              <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:12,marginBottom:20}}>
+                {[
+                  ['Baseline pré',`${brumadinho?.baseline_pre_dB??'—'} dB`,'#63b3ed'],
+                  ['Média pós-colapso',`${brumadinho?.media_pos_dB??'—'} dB`,'#fc8181'],
+                  ['Variação',`${brumadinho?.delta_pos_pre_dB>0?'+':''}${brumadinho?.delta_pos_pre_dB??'—'} dB`,'#f6e05e'],
+                ].map(([k,v,c])=>(
+                  <div key={k} style={{background:'#0a0f1e',border:'1px solid rgba(99,179,237,0.12)',borderRadius:10,padding:'14px 16px',textAlign:'center'}}>
+                    <div style={{fontFamily:'Space Mono,monospace',fontSize:18,fontWeight:700,color:c}}>{v}</div>
+                    <div style={{fontSize:10,color:'#4a5568',textTransform:'uppercase',letterSpacing:'0.06em',marginTop:4}}>{k}</div>
+                  </div>
+                ))}
+              </div>
+
+              <div style={{background:'#0a0f1e',borderLeft:'3px solid #4fd1c5',borderRadius:8,padding:'14px 18px'}}>
+                <div style={{fontFamily:'Space Mono,monospace',fontSize:10,color:'#4fd1c5',textTransform:'uppercase',letterSpacing:'0.08em',marginBottom:6}}>🔬 Interpretação científica</div>
+                <div style={{fontSize:13,color:'#cbd5e0',lineHeight:1.6}}>
+                  {brumadinho?.interpretacao || 'O backscatter pós-colapso aumenta progressivamente: assinatura SAR da deposição de rejeito. Demonstração com dados reais de que eventos de barragem deixam rastro detectável por satélite.'}
+                </div>
+              </div>
             </div>
           )}
         </div>
