@@ -122,6 +122,35 @@ function MapPopup({ barragem, historico, votos, onVotar, onClose, imgError, setI
           </div>
         )}
 
+        {/* VISUALIZAÇÃO 3D — terreno + deformação SAR */}
+        {barragem.imagem_zoom && (
+          <div style={{marginBottom:14}}>
+            <div style={{fontFamily:'Space Mono,monospace',fontSize:9,color:'#9f7aea',textTransform:'uppercase',letterSpacing:'0.08em',marginBottom:6}}>🦊 Terreno 3D + deformação detectada</div>
+            <div style={{perspective:'700px',height:140,borderRadius:8,overflow:'hidden',background:'radial-gradient(ellipse at 50% 0%,#1a2138,#050810)',border:'1px solid rgba(159,122,234,0.2)',position:'relative'}}>
+              <div className="terrain3d" style={{
+                position:'absolute',top:'18%',left:'10%',width:'80%',height:'78%',
+                backgroundImage:`url(${barragem.imagem_zoom})`,backgroundSize:'cover',backgroundPosition:'center',
+                transform:'rotateX(58deg) rotateZ(-2deg)',transformOrigin:'center center',
+                borderRadius:6,boxShadow:'0 18px 40px rgba(0,0,0,0.7)',
+                animation:'spin3d 14s linear infinite',
+              }}>
+                {/* hotspot de deformação (intensidade pela SAR) */}
+                <div style={{position:'absolute',top:'42%',left:'46%',width:54,height:54,transform:'translate(-50%,-50%)',
+                  borderRadius:'50%',
+                  background:`radial-gradient(circle, ${cor}cc 0%, ${cor}55 40%, transparent 72%)`,
+                  filter:'blur(2px)',animation:'pulse3d 1.8s ease-in-out infinite'}}/>
+              </div>
+              <style>{`
+                @keyframes spin3d{0%{transform:rotateX(58deg) rotateZ(-2deg)}50%{transform:rotateX(58deg) rotateZ(2deg)}100%{transform:rotateX(58deg) rotateZ(-2deg)}}
+                @keyframes pulse3d{0%,100%{opacity:0.55;transform:translate(-50%,-50%) scale(1)}50%{opacity:0.95;transform:translate(-50%,-50%) scale(1.25)}}
+              `}</style>
+              <div style={{position:'absolute',bottom:6,right:8,fontFamily:'Space Mono,monospace',fontSize:8,color:'#9f7aea',background:'rgba(0,0,0,0.5)',padding:'2px 6px',borderRadius:4}}>
+                deformação {barragem.deformacao_atual_dB} dB
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* MÉTRICAS */}
         <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:6,marginBottom:8}}>
           {[['Altura',barragem.altura_m+'m'],['Volume',fmt(barragem.volume_m3)],['SAR',barragem.deformacao_atual_dB+' dB']].map(([k,v])=>(
@@ -235,11 +264,16 @@ export default function App() {
   const [perfil,    setPerfil]    = useState({pontos:0,streak:0,badge:null,reports:0});
   const [toast,     setToast]     = useState(null);
   const [brumadinho, setBrumadinho] = useState(null);
+  const [divergencias, setDivergencias] = useState(null);
 
   useEffect(()=>{
     fetch(`${API}/caso-brumadinho`)
       .then(r=>r.ok?r.json():Promise.reject(r.status))
       .then(d=>{ if(d && Array.isArray(d.serie)) setBrumadinho(d); })
+      .catch(()=>{});
+    fetch(`${API}/divergencias`)
+      .then(r=>r.ok?r.json():Promise.reject(r.status))
+      .then(d=>{ if(d && Array.isArray(d.divergencias)) setDivergencias(d); })
       .catch(()=>{});
   },[]);
 
@@ -330,9 +364,9 @@ export default function App() {
             </div>
           </div>
           <div style={{display:'flex',background:'#0a0f1e',border:'1px solid rgba(99,179,237,0.15)',borderRadius:6,overflow:'hidden'}}>
-            {['mapa','card','brumadinho'].map(v=>(
-              <button key={v} onClick={()=>setView(v)} style={{padding:'5px 14px',fontSize:11,fontFamily:'Space Mono,monospace',background:view===v?'rgba(99,179,237,0.15)':'transparent',color:view===v?'#63b3ed':'#94a3b8',border:'none',cursor:'pointer',textTransform:'uppercase',letterSpacing:'0.05em',whiteSpace:'nowrap'}}>
-                {v==='mapa'?'🗺 Mapa':v==='card'?'📋 Cards':'🛰 Caso Real'}
+            {['mapa','card','divergencias','brumadinho'].map(v=>(
+              <button key={v} onClick={()=>setView(v)} style={{padding:'5px 12px',fontSize:11,fontFamily:'Space Mono,monospace',background:view===v?'rgba(99,179,237,0.15)':'transparent',color:view===v?'#63b3ed':'#94a3b8',border:'none',cursor:'pointer',textTransform:'uppercase',letterSpacing:'0.05em',whiteSpace:'nowrap'}}>
+                {v==='mapa'?'🗺 Mapa':v==='card'?'📋 Cards':v==='divergencias'?'🚩 Divergências':'🛰 Caso Real'}
               </button>
             ))}
           </div>
@@ -531,6 +565,57 @@ export default function App() {
                   </div>
                 );
               })}
+            </div>
+          )}
+
+          {/* VIEW: DIVERGÊNCIAS (fiscal independente — satélite vs laudo oficial) */}
+          {view==='divergencias'&&(
+            <div style={{padding:'24px 28px',maxWidth:1000,margin:'0 auto'}}>
+              <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:4}}>
+                <span style={{fontSize:24}}>🚩</span>
+                <h2 style={{margin:0,fontSize:20,color:'#e2e8f0'}}>Divergências — Satélite vs. Laudo Oficial</h2>
+              </div>
+              <div style={{fontSize:13,color:'#94a3b8',lineHeight:1.6,marginBottom:20,maxWidth:720}}>
+                O <b style={{color:'#cbd5e0'}}>OrbitalGuard</b> compara o que o satélite vê <b style={{color:'#4fd1c5'}}>hoje</b> com a
+                Categoria de Risco oficial do SNISB/ANM — que se baseia em vistorias espaçadas.
+                Quando o satélite detecta deformação que o laudo oficial <b style={{color:'#fc8181'}}>ainda não registrou</b>,
+                levantamos a bandeira. <b style={{color:'#cbd5e0'}}>Foi esse o padrão de Brumadinho.</b>
+              </div>
+
+              {divergencias?.divergencias?.length>0 ? divergencias.divergencias.map(d=>(
+                <div key={d.id} style={{background:'linear-gradient(135deg,rgba(252,129,129,0.08),rgba(10,15,30,0.5))',border:'1px solid rgba(252,129,129,0.3)',borderRadius:12,padding:18,marginBottom:14}}>
+                  <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',flexWrap:'wrap',gap:12}}>
+                    <div>
+                      <div style={{fontSize:16,fontWeight:600,color:'#e2e8f0'}}>🚩 {d.nome}</div>
+                      <div style={{fontFamily:'Space Mono,monospace',fontSize:11,color:'#94a3b8',marginTop:2}}>{d.municipio}/MG</div>
+                    </div>
+                    <div style={{textAlign:'center',background:'#050810',borderRadius:10,padding:'8px 16px',border:'1px solid rgba(252,129,129,0.3)'}}>
+                      <div style={{fontFamily:'Space Mono,monospace',fontSize:22,fontWeight:700,color:'#fc8181'}}>+{d.divergencia_sar_vs_oficial}</div>
+                      <div style={{fontSize:8,color:'#4a5568',textTransform:'uppercase',letterSpacing:'0.06em'}}>divergência</div>
+                    </div>
+                  </div>
+                  <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginTop:14}}>
+                    <div style={{background:'rgba(79,209,197,0.08)',borderRadius:8,padding:'10px 12px',border:'1px solid rgba(79,209,197,0.2)'}}>
+                      <div style={{fontFamily:'Space Mono,monospace',fontSize:9,color:'#4fd1c5',textTransform:'uppercase',marginBottom:3}}>🛰️ Satélite (hoje)</div>
+                      <div style={{fontSize:15,fontWeight:700,color:'#4fd1c5'}}>{d.deformacao_atual_dB} dB</div>
+                      <div style={{fontSize:10,color:'#94a3b8'}}>deformação severa detectada</div>
+                    </div>
+                    <div style={{background:'rgba(160,174,192,0.06)',borderRadius:8,padding:'10px 12px',border:'1px solid rgba(160,174,192,0.15)'}}>
+                      <div style={{fontFamily:'Space Mono,monospace',fontSize:9,color:'#a0aec0',textTransform:'uppercase',marginBottom:3}}>🏛️ Laudo oficial</div>
+                      <div style={{fontSize:15,fontWeight:700,color:'#a0aec0'}}>CRI {d.categoria_anm}</div>
+                      <div style={{fontSize:10,color:'#94a3b8'}}>baseado em vistoria espaçada</div>
+                    </div>
+                  </div>
+                  <div style={{marginTop:12,fontFamily:'Space Mono,monospace',fontSize:11,color:'#fc8181',display:'flex',alignItems:'center',gap:6}}>
+                    ⚠️ Fusion Score {d.fusion_score} — o satélite indica risco maior que o registro oficial.
+                  </div>
+                </div>
+              )) : (
+                <div style={{background:'#0a0f1e',border:'1px solid rgba(72,187,120,0.2)',borderRadius:12,padding:30,textAlign:'center'}}>
+                  <div style={{fontSize:32,marginBottom:8}}>✅</div>
+                  <div style={{color:'#94a3b8',fontSize:13}}>Nenhuma divergência crítica no momento — satélite e laudos oficiais alinhados.</div>
+                </div>
+              )}
             </div>
           )}
 

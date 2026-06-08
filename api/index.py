@@ -74,8 +74,8 @@ BARRAGENS_REAIS = [
     {"id":"B002","nome":"Barragem Germano","empresa":"Samarco","municipio":"Mariana","estado":"MG","lat":-20.2833,"lon":-43.6167,"altura_m":110,"volume_m3":55000000,"tipo":"Montante","deformacao_atual_dB":-2.8,"risco":"Atenção","categoria_anm":"Médio","dpa":"Alto","descricao":"Rompeu em nov 2015, liberando 40 milhões de m³ no Rio Doce — maior desastre ambiental do Brasil.","imagem":"https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Rio_doce_pluma.jpg/640px-Rio_doce_pluma.jpg"},
     {"id":"B003","nome":"Barragem Casa de Pedra","empresa":"CSN","municipio":"Congonhas","estado":"MG","lat":-20.5333,"lon":-43.8500,"altura_m":130,"volume_m3":89000000,"tipo":"Aterro","deformacao_atual_dB":-0.4,"risco":"Sem Risco","categoria_anm":"Baixo","dpa":"Alto","descricao":"Uma das maiores barragens de rejeito da América Latina. Atualmente estável dentro dos parâmetros normais.","imagem":"https://upload.wikimedia.org/wikipedia/commons/thumb/c/c9/Mina_Casa_de_Pedra_-_Congonhas_MG.jpg/640px-Mina_Casa_de_Pedra_-_Congonhas_MG.jpg"},
     {"id":"B004","nome":"Barragem Xingu","empresa":"Anglo American","municipio":"Conceição do Mato Dentro","estado":"MG","lat":-19.0333,"lon":-43.4167,"altura_m":95,"volume_m3":32000000,"tipo":"Montante","deformacao_atual_dB":-1.1,"risco":"Sem Risco","categoria_anm":"Baixo","dpa":"Médio","descricao":"Parte do Projeto Minas-Rio da Anglo American. Usa tecnologia de filtro a seco, mais segura que montante.","imagem":"https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/Mina_de_Alegria_%28Mariana%2C_MG%29.jpg/640px-Mina_de_Alegria_%28Mariana%2C_MG%29.jpg"},
-    {"id":"B005","nome":"Barragem Alegria","empresa":"Vale S.A.","municipio":"Mariana","estado":"MG","lat":-20.3667,"lon":-43.4333,"altura_m":78,"volume_m3":18500000,"tipo":"Linha de centro","deformacao_atual_dB":-3.5,"risco":"Atenção","categoria_anm":"Médio","dpa":"Alto","descricao":"Deformação moderada detectada nos últimos 30 dias. Requer atenção reforçada e inspeção presencial.","imagem":"https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Rio_doce_pluma.jpg/640px-Rio_doce_pluma.jpg"},
-    {"id":"B006","nome":"Barragem Forquilha I","empresa":"Vale S.A.","municipio":"Ouro Preto","estado":"MG","lat":-20.3869,"lon":-43.5022,"altura_m":68,"volume_m3":8200000,"tipo":"Montante","deformacao_atual_dB":-4.1,"risco":"Atenção","categoria_anm":"Médio","dpa":"Alto","descricao":"Barragem de rejeito de minério de ferro da Vale. Monitorada após inclusão no programa de descaracterização.","imagem":"https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Rio_doce_pluma.jpg/640px-Rio_doce_pluma.jpg"},
+    {"id":"B005","nome":"Barragem Alegria","empresa":"Vale S.A.","municipio":"Mariana","estado":"MG","lat":-20.3667,"lon":-43.4333,"altura_m":78,"volume_m3":18500000,"tipo":"Linha de centro","deformacao_atual_dB":-6.8,"risco":"Atenção","categoria_anm":"Baixo","dpa":"Médio","descricao":"Deformação moderada detectada nos últimos 30 dias. Requer atenção reforçada e inspeção presencial.","imagem":"https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Rio_doce_pluma.jpg/640px-Rio_doce_pluma.jpg"},
+    {"id":"B006","nome":"Barragem Forquilha I","empresa":"Vale S.A.","municipio":"Ouro Preto","estado":"MG","lat":-20.3869,"lon":-43.5022,"altura_m":68,"volume_m3":8200000,"tipo":"Montante","deformacao_atual_dB":-5.5,"risco":"Atenção","categoria_anm":"Baixo","dpa":"Médio","descricao":"Barragem de rejeito de minério de ferro da Vale. Monitorada após inclusão no programa de descaracterização.","imagem":"https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Rio_doce_pluma.jpg/640px-Rio_doce_pluma.jpg"},
     {"id":"B007","nome":"Barragem Sul Superior","empresa":"Vale S.A.","municipio":"Barão de Cocais","estado":"MG","lat":-19.9347,"lon":-43.4789,"altura_m":72,"volume_m3":9800000,"tipo":"Montante","deformacao_atual_dB":-5.8,"risco":"Crítico","categoria_anm":"Alto","dpa":"Alto","descricao":"Barragem em estado de emergência nível 3 declarado em 2019. Comunidades da ZAS foram evacuadas preventivamente.","imagem":"https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Brumadinho_dam_failure_aerial_photo_%282019%29.jpg/640px-Brumadinho_dam_failure_aerial_photo_%282019%29.jpg"},
     {"id":"B008","nome":"Barragem Doutor","empresa":"Anglo American","municipio":"Conceição do Mato Dentro","estado":"MG","lat":-19.1200,"lon":-43.4500,"altura_m":55,"volume_m3":5600000,"tipo":"Aterro","deformacao_atual_dB":-0.8,"risco":"Sem Risco","categoria_anm":"Baixo","dpa":"Médio","descricao":"Estrutura de aterro compactado com monitoramento instrumentado contínuo. Estável nos últimos 12 meses.","imagem":"https://upload.wikimedia.org/wikipedia/commons/thumb/c/c9/Mina_Casa_de_Pedra_-_Congonhas_MG.jpg/640px-Mina_Casa_de_Pedra_-_Congonhas_MG.jpg"},
 ]
@@ -109,6 +109,55 @@ BRUMADINHO_REAL = {
     "serie": [{"data": "2018-12-05", "fase": "pre", "vv_dB": 48.25, "deformacao_dB": 1.303}, {"data": "2018-12-12", "fase": "pre", "vv_dB": 46.0, "deformacao_dB": -0.947}, {"data": "2018-12-17", "fase": "pre", "vv_dB": 47.316, "deformacao_dB": 0.369}, {"data": "2018-12-24", "fase": "pre", "vv_dB": 45.602, "deformacao_dB": -1.345}, {"data": "2018-12-29", "fase": "pre", "vv_dB": 48.661, "deformacao_dB": 1.714}, {"data": "2019-01-05", "fase": "pre", "vv_dB": 46.021, "deformacao_dB": -0.926}, {"data": "2019-01-10", "fase": "pre", "vv_dB": 47.572, "deformacao_dB": 0.625}, {"data": "2019-01-17", "fase": "pre", "vv_dB": 45.653, "deformacao_dB": -1.294}, {"data": "2019-01-22", "fase": "pre", "vv_dB": 47.451, "deformacao_dB": 0.504}, {"data": "2019-01-28", "fase": "pos", "vv_dB": 48.506, "deformacao_dB": 1.559}, {"data": "2019-01-29", "fase": "pos", "vv_dB": 46.892, "deformacao_dB": -0.055}, {"data": "2019-02-03", "fase": "pos", "vv_dB": 49.933, "deformacao_dB": 2.986}, {"data": "2019-02-10", "fase": "pos", "vv_dB": 47.888, "deformacao_dB": 0.941}, {"data": "2019-02-15", "fase": "pos", "vv_dB": 50.735, "deformacao_dB": 3.788}, {"data": "2019-02-22", "fase": "pos", "vv_dB": 48.232, "deformacao_dB": 1.285}, {"data": "2019-02-27", "fase": "pos", "vv_dB": 51.022, "deformacao_dB": 4.075}],
     "interpretacao": "O backscatter pós-colapso aumenta progressivamente (+2 a +4 dB): assinatura SAR da deposição de rejeito, superfície rugosa e úmida que reflete mais o radar. Demonstração com dados reais de que eventos de barragem deixam rastro detectável por satélite.",
 }
+
+# ─── RISK FUSION SCORE ─────────────────────────────────────────────────────────
+# Índice dinâmico (0-100) que FUNDE três sinais que ninguém combina hoje:
+#   1. Deformação SAR (satélite, atualiza a cada 6 dias)  — sinal FÍSICO atual
+#   2. CRI + DPA oficiais do SNISB/ANM                    — contexto REGULATÓRIO
+#   3. Validação comunitária (gamificação)                — olho HUMANO
+# O SNISB diz o que a barragem ERA na última vistoria.
+# O Risk Fusion Score diz o que ela É hoje.
+_PESO_SAR, _PESO_OFICIAL, _PESO_COMUNIDADE = 0.50, 0.35, 0.15
+_MAP_CRI = {"Alto": 1.0, "Médio": 0.55, "Baixo": 0.2, "Não se Aplica": 0.1}
+_MAP_DPA = {"Alto": 1.0, "Médio": 0.55, "Baixo": 0.2, "Não Classificada": 0.3}
+
+
+def _score_sar(deformacao_dB):
+    """Deformação SAR -> 0..1 (mais negativo = mais risco). -8dB ~ 1.0, 0dB ~ 0."""
+    return max(0.0, min(1.0, abs(min(0.0, deformacao_dB)) / 8.0))
+
+
+def risk_fusion_score(barragem, votos=None):
+    sar = _score_sar(barragem.get("deformacao_atual_dB", 0))
+    cri = _MAP_CRI.get(barragem.get("categoria_anm") or barragem.get("cri"), 0.4)
+    dpa = _MAP_DPA.get(barragem.get("dpa"), 0.4)
+    oficial = (cri + dpa) / 2.0
+    com = 0.5
+    if votos and (votos.get("confirmar", 0) + votos.get("contestar", 0)) > 0:
+        tot = votos["confirmar"] + votos["contestar"]
+        com = votos["confirmar"] / tot
+    score = 100 * (_PESO_SAR * sar + _PESO_OFICIAL * oficial + _PESO_COMUNIDADE * com)
+    score = round(score, 1)
+    # DIVERGÊNCIA: satélite (SAR) discorda do laudo oficial?
+    # Se SAR aponta risco alto mas o oficial é baixo (ou vice-versa) => bandeira.
+    divergencia = round((sar - oficial) * 100, 1)
+    if score >= 70:
+        nivel = "Crítico"
+    elif score >= 40:
+        nivel = "Atenção"
+    else:
+        nivel = "Estável"
+    return {
+        "fusion_score": score,
+        "nivel_fusion": nivel,
+        "componentes": {
+            "sar": round(sar * 100, 1),
+            "oficial_cri_dpa": round(oficial * 100, 1),
+            "comunidade": round(com * 100, 1),
+        },
+        "divergencia_sar_vs_oficial": divergencia,
+        "alerta_divergencia": divergencia > 25,  # satélite vê risco que o laudo não vê
+    }
 
 
 
@@ -611,5 +660,43 @@ def caso_brumadinho():
     """Série SAR REAL de Brumadinho (Sentinel-1) — pré/pós colapso 25/jan/2019."""
     return BRUMADINHO_REAL
 
+
+
+@router.get("/fusion/{barragem_id}")
+def fusion_barragem(barragem_id: str):
+    """Risk Fusion Score: funde SAR + CRI/DPA oficial + comunidade."""
+    b = next((x for x in BARRAGENS_REAIS if x["id"] == barragem_id), None)
+    if not b:
+        raise HTTPException(status_code=404, detail="Barragem não encontrada")
+    return {**{k: b[k] for k in ("id", "nome", "risco")}, **risk_fusion_score(b, votos_db.get(barragem_id))}
+
+
+@router.get("/divergencias")
+def divergencias():
+    """Barragens onde o SATÉLITE discorda do laudo oficial (potencial próximo Brumadinho)."""
+    out = []
+    for b in BARRAGENS_REAIS:
+        rf = risk_fusion_score(b, votos_db.get(b["id"]))
+        if rf["alerta_divergencia"]:
+            out.append({"id": b["id"], "nome": b["nome"], "municipio": b["municipio"],
+                        "deformacao_atual_dB": b["deformacao_atual_dB"],
+                        "categoria_anm": b.get("categoria_anm"), "dpa": b.get("dpa"), **rf})
+    out.sort(key=lambda x: -x["divergencia_sar_vs_oficial"])
+    return {"total": len(out),
+            "descricao": "Barragens onde o monitoramento por satélite indica risco MAIOR que o laudo oficial estático.",
+            "divergencias": out}
+
+
+@router.get("/ranking-fusion")
+def ranking_fusion():
+    """Todas as barragens ordenadas pelo Risk Fusion Score dinâmico."""
+    res = []
+    for b in BARRAGENS_REAIS:
+        rf = risk_fusion_score(b, votos_db.get(b["id"]))
+        res.append({"id": b["id"], "nome": b["nome"], "municipio": b["municipio"],
+                    "fusion_score": rf["fusion_score"], "nivel_fusion": rf["nivel_fusion"],
+                    "componentes": rf["componentes"], "alerta_divergencia": rf["alerta_divergencia"]})
+    res.sort(key=lambda x: -x["fusion_score"])
+    return {"total": len(res), "ranking": res}
 
 app.include_router(router)
