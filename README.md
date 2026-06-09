@@ -124,51 +124,6 @@ O notebook está disponível no Google Colab:
 
 ---
 
-## 🚀 Como Rodar
-
-### Pré-requisitos
-
-- Python 3.11+
-- Node.js 18+
-- Conta no [Copernicus Data Space](https://dataspace.copernicus.eu)
-- Conta no [Google Earth Engine](https://earthengine.google.com)
-
-### 1. Backend (FastAPI)
-
-```bash
-cd backend
-pip install fastapi uvicorn httpx pydantic joblib scikit-learn
-python backend.py
-```
-
-API disponível em: `http://localhost:8000`
-Docs interativos: `http://localhost:8000/docs`
-
-### 2. Dashboard (React)
-
-```bash
-cd dashboard
-npm install
-npm start
-```
-
-Dashboard disponível em: `http://localhost:3000`
-
-### 3. Pipeline SAR (Google Earth Engine)
-
-```bash
-cd pipeline
-pip install earthengine-api geemap folium
-python -c "import ee; ee.Authenticate(auth_mode='notebook')"
-python gee_pipeline.py
-```
-
-### 4. Notebook ML (Google Colab)
-
-Acessa o link do Colab acima e executa todas as células em ordem.
-
----
-
 ## 🛰️ Dados Utilizados
 
 | Fonte | Dados | Acesso |
